@@ -29,6 +29,7 @@ public class MatchScoreController extends HttpServlet {
         } catch (PlayerNotFoundException e) {
             throw new RuntimeException(e);
         }
+
         try {
             player2ById = PlayerDao.getPlayerById(matchScore.getPlayer2ID());
         } catch (PlayerNotFoundException e) {
@@ -44,6 +45,7 @@ public class MatchScoreController extends HttpServlet {
         req.setAttribute("player2Sets", matchScore.getPlayer2Sets());
         req.setAttribute("player2Games", matchScore.getPlayer2Games());
         req.setAttribute("player2Points", matchScore.getPlayer2Points());
+
 
         req.setAttribute("matchId", matchScore.getMatchId());
 
