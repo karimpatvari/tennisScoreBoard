@@ -15,8 +15,8 @@
         <property name="current_session_context_class">thread</property>
         <property name="format_sql">true</property>
 
-        <mapping class="main.entities.Player" />
-        <mapping class="main.entities.Match" />
+        <mapping class="main.entities.PlayerEntity" />
+        <mapping class="main.entities.MatchEntity" />
 
 
     </session-factory>

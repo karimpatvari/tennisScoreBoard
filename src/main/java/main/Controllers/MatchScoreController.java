@@ -5,10 +5,12 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import main.customExceptions.MatchNotCreatedException;
 import main.customExceptions.PlayerNotFoundException;
 import main.dao.PlayerDao;
 import main.entities.MatchScore;
-import main.entities.Player;
+import main.entities.PlayerEntity;
+import main.service.FinishedMatchesPersistenceService;
 import main.service.MatchScoreCalculationService;
 import main.service.OngoingMatchesService;
 
@@ -21,51 +23,58 @@ public class MatchScoreController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        MatchScore matchScore = OngoingMatchesService.getMatchById(UUID.fromString(req.getParameter("uuid")));
-        Player player1ById = null;
-        Player player2ById = null;
-        try {
-            player1ById = PlayerDao.getPlayerById(matchScore.getPlayer1ID());
-        } catch (PlayerNotFoundException e) {
-            throw new RuntimeException(e);
+        OngoingMatchesService ongoingMatchesService = new OngoingMatchesService();
+        FinishedMatchesPersistenceService finishedMatchesService = new FinishedMatchesPersistenceService();
+
+        UUID id = UUID.fromString(req.getParameter("uuid"));
+        MatchScore matchScore = ongoingMatchesService.getMatchById(id);
+
+        PlayerEntity player1ById = matchScore.getPlayer1();
+        PlayerEntity player2ById = matchScore.getPlayer2();
+
+        //if winner is assigned
+        if (matchScore.isWinnerAssigned()) {
+
+            PlayerEntity winner = matchScore.getWinner();
+
+            try {
+                finishedMatchesService.saveMatchToDB(player1ById, player2ById, winner);
+            } catch (MatchNotCreatedException e) {
+                throw new RuntimeException(e);
+            }
+
+            req.setAttribute("matchScore", matchScore);
+            req.getRequestDispatcher("FinalScorePage.jsp").forward(req, resp);
+
+            ongoingMatchesService.removeMatchFromCollection(matchScore.getMatchId());
+            return;
         }
 
-        try {
-            player2ById = PlayerDao.getPlayerById(matchScore.getPlayer2ID());
-        } catch (PlayerNotFoundException e) {
-            throw new RuntimeException(e);
-        }
 
-
-        req.setAttribute("player1Name", player1ById.getName());
-        req.setAttribute("player1Sets", matchScore.getPlayer1Sets());
-        req.setAttribute("player1Games", matchScore.getPlayer1Games());
-        req.setAttribute("player1Points", matchScore.getPlayer1Points());
-        req.setAttribute("player2Name", player2ById.getName());
-        req.setAttribute("player2Sets", matchScore.getPlayer2Sets());
-        req.setAttribute("player2Games", matchScore.getPlayer2Games());
-        req.setAttribute("player2Points", matchScore.getPlayer2Points());
-
-
-        req.setAttribute("matchId", matchScore.getMatchId());
-
-        req.getRequestDispatcher("MatchScorePage.jsp").forward(req, resp);
+        req.setAttribute("matchScore", matchScore);
+        req.getRequestDispatcher("OngoingMatchPage.jsp").forward(req, resp);
 
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        OngoingMatchesService ongoingMatchesService = new OngoingMatchesService();
+        MatchScoreCalculationService ScoreCalculationService = new MatchScoreCalculationService();
+
         UUID uuid = UUID.fromString(req.getParameter("uuid"));
+        String winnerId = req.getParameter("winner");
 
+        //get outDated match
+        MatchScore ongoingMatch = ongoingMatchesService.getMatchById(uuid);
 
-        String player2winsPoint = req.getParameter("player2point");
-        String player1winsPoint = req.getParameter("player1point");
+        //calculate the points
+        ScoreCalculationService.calculateMatch(ongoingMatch, winnerId);
 
-        MatchScore match = OngoingMatchesService.getMatchById(uuid);
-        match = MatchScoreCalculationService.calculateTheScore(match, player1winsPoint, player2winsPoint);
-        OngoingMatchesService.updateScore(match);
+        //update the match in the collection
+        ongoingMatchesService.updateScore(ongoingMatch);
 
-        resp.sendRedirect("/match-score?uuid="+uuid.toString());
+        resp.sendRedirect("/match-score?uuid=" + uuid.toString());
 
     }
 }

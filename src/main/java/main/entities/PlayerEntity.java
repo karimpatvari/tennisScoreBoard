@@ -9,7 +9,7 @@ import lombok.*;
 @ToString
 @Entity
 @Table(name = "PLAYERS")
-public class Player {
+public class PlayerEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +19,7 @@ public class Player {
     @Column(name = "NAME", nullable = false, unique = true)
     private String name;
 
-    public Player(String name) {
+    public PlayerEntity(String name) {
         this.name = name;
     }
 }

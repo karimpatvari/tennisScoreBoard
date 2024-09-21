@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "MATCHES")
-public class Match {
+public class MatchEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,17 +19,17 @@ public class Match {
 
     @ManyToOne
     @JoinColumn(name = "PLAYER1", referencedColumnName = "ID", nullable = false)
-    private Player player1;
+    private PlayerEntity player1;
 
     @ManyToOne
     @JoinColumn(name = "PLAYER2", referencedColumnName = "ID", nullable = false)
-    private Player player2;
+    private PlayerEntity player2;
 
     @ManyToOne
     @JoinColumn(name = "WINNER", referencedColumnName = "ID",nullable = false)
-    private Player winner;
+    private PlayerEntity winner;
 
-    public Match(Player player1, Player player2, Player winner) {
+    public MatchEntity(PlayerEntity player1, PlayerEntity player2, PlayerEntity winner) {
         this.player1 = player1;
         this.player2 = player2;
         this.winner = winner;

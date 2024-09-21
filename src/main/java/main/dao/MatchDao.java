@@ -1,8 +1,7 @@
 package main.dao;
 
 import main.customExceptions.MatchNotCreatedException;
-import main.customExceptions.MatchNotFoundException;
-import main.entities.Match;
+import main.entities.MatchEntity;
 import main.utils.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -14,84 +13,78 @@ public class MatchDao {
 
     private static SessionFactory factory = HibernateUtil.getSessionFactory();
 
-    public static Match createMatch(Match match) throws MatchNotCreatedException {
-        Transaction tx = null;
-
-        try(Session session = factory.openSession()) {
-
-            tx = session.beginTransaction();
-            Integer generatedId = (Integer) session.save(match);
-            match.setId(generatedId);
-            tx.commit();
-
-        }catch (Exception e) {
-            if(tx != null) {
-                tx.rollback();
-            }
-            throw new MatchNotCreatedException(e.getMessage());
-        }
-
-        return match;
-    }
-
-    public static Match getMatchById(int id) throws MatchNotFoundException {
-
-        Transaction tx = null;
-        Match match = null;
-
-        try(Session session = factory.openSession()) {
-            tx = session.beginTransaction();
-            match = session.get(Match.class, id);
-            tx.commit();
-        }catch (Exception e) {
-            if(tx != null) {
-                tx.rollback();
-            }
-            throw new MatchNotFoundException(e.getMessage());
-        }
-        return match;
-    }
-
-    public static Match updateMatch(Match match) {
-        return null;
-    }
-
-    public static void deleteMatch(int id) throws MatchNotFoundException {
-
-        Match match = MatchDao.getMatchById(id);
-
+    public MatchEntity createMatch(MatchEntity matchEntity) throws MatchNotCreatedException {
         Transaction tx = null;
 
         try(Session session = factory.openSession()) {
             tx = session.beginTransaction();
-            session.remove(match);
+
+            Integer generatedId = (Integer) session.save(matchEntity);
+            matchEntity.setId(generatedId);
+
             tx.commit();
-        }catch (Exception e) {
-            if(tx != null) {
-                tx.rollback();
-            }
-            throw new MatchNotFoundException(e.getMessage());
-        }
-    }
-
-    public static List<Match> getAllMatches() {
-        Transaction tx = null;
-        List<Match> matches = null;
-
-        try(Session session = factory.openSession()) {
-
-            tx = session.beginTransaction();
-            matches = session.createQuery("from Match").list();
-            tx.commit();
-
         }catch (Exception e) {
             if(tx != null) {
                 tx.rollback();
             }
             throw e;
         }
-        return matches;
+
+        if (matchEntity.getId() == null) {
+            throw new MatchNotCreatedException();
+        }
+
+        return matchEntity;
     }
 
+    public List<MatchEntity> getMatchesWithPagination(int offset, int limit) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        List<MatchEntity> matchEntities = null;
+
+        try {
+            matchEntities = session.createQuery("FROM MatchEntity", MatchEntity.class)
+                    .setFirstResult(offset)
+                    .setMaxResults(limit)
+                    .list();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+
+        return matchEntities;
+    }
+
+    public int getTotalMatchCount() {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Long count = 0L;
+
+        try {
+            count = (Long) session.createQuery("SELECT COUNT(m) FROM MatchEntity m").uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+
+        return count.intValue();
+    }
+
+    public List<MatchEntity> getMatchesByPlayerName(String playerName) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        List<MatchEntity> matchEntities = null;
+
+        try {
+            matchEntities = session.createQuery("FROM MatchEntity m WHERE m.player1.name = :playerName OR m.player2.name = :playerName", MatchEntity.class)
+                    .setParameter("playerName", playerName)
+                    .list();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+
+        return matchEntities;
+    }
 
 }

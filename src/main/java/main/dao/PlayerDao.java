@@ -1,31 +1,26 @@
 package main.dao;
 
-import jakarta.persistence.Id;
 import main.customExceptions.PlayerNotCreatedException;
-import main.customExceptions.PlayerNotDeletedException;
 import main.customExceptions.PlayerNotFoundException;
-import main.entities.Player;
+import main.entities.PlayerEntity;
 import main.utils.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PlayerDao {
 
     private static SessionFactory factory = HibernateUtil.getSessionFactory();
 
-    public static Player savePlayer(Player player) throws PlayerNotCreatedException {
+    public PlayerEntity savePlayer(PlayerEntity playerEntity) throws PlayerNotCreatedException {
 
         Transaction tx = null;
 
         try (Session session = factory.getCurrentSession()) {
             tx = session.beginTransaction();
 
-            Integer generatedId = (Integer) session.save(player);
-            player.setId(generatedId);
+            Integer generatedId = (Integer) session.save(playerEntity);
+            playerEntity.setId(generatedId);
 
             tx.commit();
 
@@ -36,25 +31,22 @@ public class PlayerDao {
             throw e;
         }
 
-        if(player.getId() == null){
+        if (playerEntity.getId() == null) {
             throw new PlayerNotCreatedException();
         }
 
-        return player;
+        return playerEntity;
     }
 
-    public static Player getPlayerByName(String name) throws PlayerNotFoundException {
+    public PlayerEntity getPlayerByName(String name) throws PlayerNotFoundException {
 
         Transaction tx = null;
-        Player player = null;
+        PlayerEntity player;
 
         try (Session session = factory.getCurrentSession()) {
             tx = session.beginTransaction();
 
-            player = session.createQuery(
-                            "from Player where name = :name", Player.class)
-                    .setParameter("name", name)
-                    .uniqueResult();
+            player = session.createQuery("from PlayerEntity where name = :name", PlayerEntity.class).setParameter("name", name).uniqueResult();
 
             tx.commit();
 
@@ -66,22 +58,22 @@ public class PlayerDao {
         }
 
         if (player == null) {
-            throw new PlayerNotFoundException("Player with name " + name + " not found");
+            throw new PlayerNotFoundException();
         }
 
         return player;
     }
 
-    public static Player getPlayerById(int id) throws PlayerNotFoundException {
+    public PlayerEntity getPlayerById(int id) throws PlayerNotFoundException {
 
         Transaction tx = null;
-        Player player = null;
+        PlayerEntity playerEntity;
 
         try (Session session = factory.getCurrentSession()) {
 
             tx = session.beginTransaction();
 
-            player = session.get(Player.class, id);
+            playerEntity = session.get(PlayerEntity.class, id);
             tx.commit();
 
         } catch (Exception e) {
@@ -91,80 +83,24 @@ public class PlayerDao {
             throw e;
         }
 
-        if (player == null) {
-            throw new PlayerNotFoundException("Player with ID: " + id + " not found");
+        if (playerEntity == null) {
+            throw new PlayerNotFoundException();
         }
 
-        return player;
+        return playerEntity;
     }
 
-    public static Player updatePlayer(Player updatedPlayer) {
-        return null;
-    }
-
-    public static void deletePlayer(Integer Id) throws PlayerNotFoundException, PlayerNotDeletedException {
-
-        Player player = PlayerDao.getPlayerById(Id);
-
-        Transaction tx = null;
-
-        try (Session session = factory.getCurrentSession()) {
-
-            tx = session.beginTransaction();
-            session.remove(player);
-            tx.commit();
-
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw new PlayerNotDeletedException("Failed to delete player " + player, e);
-        }
-
-    }
-
-    public static void deletePlayer(String name) throws PlayerNotFoundException, PlayerNotDeletedException {
-
-        Player player = PlayerDao.getPlayerByName(name);
-
-        Transaction tx = null;
-
-        try (Session session = factory.getCurrentSession()) {
-
-            tx = session.beginTransaction();
-            session.remove(player);
-            tx.commit();
-
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw new PlayerNotDeletedException("Failed to delete player " + player, e);
-        }
-    }
-
-    public static List<Player> getAllPlayers() {
-        List<Player> players = new ArrayList<>();
-
-        try (Session session = factory.getCurrentSession()) {
-            players = session.createQuery("from Player", Player.class).list();
-
-        } catch (Exception e) {
-            throw e;
-        }
-        return players;
-    }
-
-    public static Player getOrSavePlayer(Player player) throws PlayerNotCreatedException {
-        Player newPlayer = new Player();
-        newPlayer.setName(player.getName());
+    public PlayerEntity getOrSavePlayer(String playerName) throws PlayerNotCreatedException {
+        PlayerEntity PlayerEntity = new PlayerEntity();
+        PlayerEntity.setName(playerName);
 
         try {
-            newPlayer = PlayerDao.getPlayerByName(player.getName());
+            PlayerEntity = getPlayerByName(playerName);
         } catch (PlayerNotFoundException e) {
-            newPlayer = PlayerDao.savePlayer(player);
+            PlayerEntity = savePlayer(PlayerEntity);
         }
-        return newPlayer;
+
+        return PlayerEntity;
     }
 
 }

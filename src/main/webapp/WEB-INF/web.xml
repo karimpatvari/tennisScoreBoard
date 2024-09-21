@@ -5,6 +5,9 @@
          version="5.0">
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
-
     </welcome-file-list>
+    
+    <listener>
+        <listener-class>main.Controllers.SampleDataLoaderListener</listener-class>
+    </listener>
 </web-app>

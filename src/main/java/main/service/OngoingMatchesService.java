@@ -1,7 +1,7 @@
 package main.service;
 
-import main.entities.Match;
 import main.entities.MatchScore;
+import main.entities.PlayerEntity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,13 +11,15 @@ public class OngoingMatchesService {
 
     private static Map<UUID, MatchScore> ongoingMatches = new HashMap<>();
 
-    public static MatchScore createMatch(Integer player1ID, Integer player2ID) {
-        MatchScore newOngoingMatch = new MatchScore(UUID.randomUUID(),player1ID,player2ID);
+    public MatchScore createMatch(PlayerEntity player1, PlayerEntity player2) {
+
+        MatchScore newOngoingMatch = new MatchScore(UUID.randomUUID(),player1,player2);
         ongoingMatches.put(newOngoingMatch.getMatchId(),newOngoingMatch);
+
         return newOngoingMatch;
     }
 
-    public static void updateScore(MatchScore ongoingMatch) {
+    public void updateScore(MatchScore ongoingMatch) {
         MatchScore match = ongoingMatches.get(ongoingMatch.getMatchId());
         if (match != null) {
             match = ongoingMatch;
@@ -25,11 +27,15 @@ public class OngoingMatchesService {
         }
     }
 
-    public static MatchScore getMatchById(UUID matchId) {
+    public MatchScore getMatchById(UUID matchId) {
         return ongoingMatches.get(matchId);
     }
 
-    public static Map<UUID, MatchScore> getAllOngoingMatches() {
+    public void removeMatchFromCollection(UUID matchId){
+        ongoingMatches.remove(matchId);
+    }
+
+    public Map<UUID, MatchScore> getAllOngoingMatches() {
         return ongoingMatches;
     }
 
