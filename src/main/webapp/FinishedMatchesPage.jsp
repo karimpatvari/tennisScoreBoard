@@ -1,42 +1,49 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finished Matches | MatchScore Tracker</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f7f9fc;
         }
 
         nav {
-            background-color: #333;
+            background-color: #2c3e50;
             color: white;
-            padding: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         nav a {
             color: white;
             text-decoration: none;
-            margin-right: 15px;
+            margin-right: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
         }
         nav a:hover {
-            text-decoration: underline;
+            color: #1abc9c;
         }
 
         .container {
             width: 80%;
             margin: 20px auto;
-            background: #fff;
+            background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
             text-align: center;
             color: #333;
+            margin-bottom: 20px;
         }
 
         form {
@@ -48,22 +55,24 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            width: 200px;
+            width: 220px;
             font-size: 16px;
+            margin-right: 10px;
         }
 
         form button {
             padding: 10px 15px;
             border: none;
-            background-color: #333;
+            background-color: #2c3e50;
             color: #fff;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
         form button:hover {
-            background-color: #555;
+            background-color: #34495e;
         }
 
         table {
@@ -91,16 +100,36 @@
             background-color: #f1f1f1;
         }
 
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            margin: 0 10px;
+            padding: 10px 15px;
+            border: none;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .pagination button:hover {
+            background-color: #34495e;
+        }
+
         footer {
             text-align: center;
-            padding: 10px;
-            background-color: #333;
+            padding: 15px;
+            background-color: #2c3e50;
             color: white;
             position: fixed;
             width: 100%;
             bottom: 0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
         }
-
     </style>
 </head>
 <body>
@@ -115,11 +144,9 @@
     <h1>Finished Matches</h1>
 
     <form method="get" action="matches">
-        <div>
-            <label for="PlayerName">Search by name:</label>
-            <input type="text" id="PlayerName" name="filter_by_player_name" placeholder="Player name here">
-            <button type="submit">Search</button>
-        </div>
+        <label for="PlayerName">Search by name:</label>
+        <input type="text" id="PlayerName" name="filter_by_player_name" placeholder="Player name here">
+        <button type="submit">Search</button>
     </form>
 
     <table>
@@ -142,35 +169,25 @@
         </c:forEach>
         </tbody>
     </table>
+
+    <div class="pagination">
+        <c:if test="${page > 1}">
+            <form action="matches" method="get">
+                <input type="hidden" name="page" value="${page - 1}">
+                <button type="submit">Previous</button>
+            </form>
+        </c:if>
+
+        <span>Page ${page} of ${totalPages}</span>
+
+        <c:if test="${page < totalPages}">
+            <form action="matches" method="get">
+                <input type="hidden" name="page" value="${page + 1}">
+                <button type="submit">Next</button>
+            </form>
+        </c:if>
+    </div>
 </div>
-
-
-<table>
-    <tr>
-        <!-- Only show "Previous" button if current page is greater than 1 -->
-        <td>
-            <c:if test="${page > 1}">
-                <form action="matches" method="get">
-                    <input type="hidden" name="page" value="${page - 1}">
-                    <button type="submit">Previous</button>
-                </form>
-            </c:if>
-        </td>
-
-        <!-- Display current page number -->
-        <td>Page ${page} of ${totalPages}</td>
-
-        <!-- Only show "Next" button if current page is less than total pages -->
-        <td>
-            <c:if test="${page < totalPages}">
-                <form action="matches" method="get">
-                    <input type="hidden" name="page" value="${page + 1}">
-                    <button type="submit">Next</button>
-                </form>
-            </c:if>
-        </td>
-    </tr>
-</table>
 
 <footer>
     <p>&copy; 2024 Tennis Match Tracker. All Rights Reserved.</p>
@@ -178,4 +195,3 @@
 
 </body>
 </html>
-
