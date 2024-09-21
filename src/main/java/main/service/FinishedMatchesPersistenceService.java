@@ -3,23 +3,22 @@ package main.service;
 import main.customExceptions.MatchNotCreatedException;
 import main.dao.MatchDao;
 import main.entities.MatchEntity;
+import main.entities.MatchScore;
 import main.entities.PlayerEntity;
 import java.util.List;
 
 public class FinishedMatchesPersistenceService {
 
     // Save a match to the database
-    public MatchEntity saveMatchToDB(PlayerEntity player1, PlayerEntity player2, PlayerEntity winner) throws MatchNotCreatedException {
+    public MatchEntity saveMatchToDB(MatchScore matchScore) throws MatchNotCreatedException {
         MatchDao matchDao = new MatchDao();
 
         MatchEntity matchEntity = new MatchEntity();
-        matchEntity.setPlayer1(player1);
-        matchEntity.setPlayer2(player2);
-        matchEntity.setWinner(winner);
+        matchEntity.setPlayer1(matchScore.getPlayer1());
+        matchEntity.setPlayer2(matchScore.getPlayer2());
+        matchEntity.setWinner(matchScore.getWinner());
 
-        MatchEntity matchEntityWithGeneratedId = matchDao.createMatch(matchEntity);
-
-        return matchEntityWithGeneratedId;
+        return matchDao.createMatch(matchEntity);
     }
 
     // Fetch matches for the given page number with pagination

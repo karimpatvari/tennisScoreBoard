@@ -6,13 +6,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import main.customExceptions.MatchNotCreatedException;
-import main.customExceptions.PlayerNotFoundException;
-import main.dao.PlayerDao;
 import main.entities.MatchScore;
-import main.entities.PlayerEntity;
 import main.service.FinishedMatchesPersistenceService;
 import main.service.MatchScoreCalculationService;
 import main.service.OngoingMatchesService;
+
 
 import java.io.IOException;
 import java.util.UUID;
@@ -20,47 +18,50 @@ import java.util.UUID;
 @WebServlet("/match-score")
 public class MatchScoreController extends HttpServlet {
 
+    private OngoingMatchesService ongoingMatchesService;
+    private FinishedMatchesPersistenceService finishedMatchesService;
+    private MatchScoreCalculationService scoreCalculationService;
+
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        OngoingMatchesService ongoingMatchesService = new OngoingMatchesService();
-        FinishedMatchesPersistenceService finishedMatchesService = new FinishedMatchesPersistenceService();
-
-        UUID id = UUID.fromString(req.getParameter("uuid"));
-        MatchScore matchScore = ongoingMatchesService.getMatchById(id);
-
-        PlayerEntity player1ById = matchScore.getPlayer1();
-        PlayerEntity player2ById = matchScore.getPlayer2();
-
-        //if winner is assigned
-        if (matchScore.isWinnerAssigned()) {
-
-            PlayerEntity winner = matchScore.getWinner();
-
-            try {
-                finishedMatchesService.saveMatchToDB(player1ById, player2ById, winner);
-            } catch (MatchNotCreatedException e) {
-                throw new RuntimeException(e);
-            }
-
-            req.setAttribute("matchScore", matchScore);
-            req.getRequestDispatcher("FinalScorePage.jsp").forward(req, resp);
-
-            ongoingMatchesService.removeMatchFromCollection(matchScore.getMatchId());
-            return;
-        }
-
-
-        req.setAttribute("matchScore", matchScore);
-        req.getRequestDispatcher("OngoingMatchPage.jsp").forward(req, resp);
-
+    public void init() throws ServletException {
+        this.ongoingMatchesService = new OngoingMatchesService();
+        this.finishedMatchesService = new FinishedMatchesPersistenceService();
+        this.scoreCalculationService = new MatchScoreCalculationService();
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        OngoingMatchesService ongoingMatchesService = new OngoingMatchesService();
-        MatchScoreCalculationService ScoreCalculationService = new MatchScoreCalculationService();
+        //get match by id
+        MatchScore matchScore = ongoingMatchesService.getMatchById(UUID.fromString(req.getParameter("uuid")));
+
+        //sending matchScore to jsp page, because it will not be changed
+        req.setAttribute("matchScore", matchScore);
+
+        //if winner is assigned then proceed to final score page
+        if (matchScore.isWinnerAssigned()) {
+
+            try {
+                //saving match record to db
+                finishedMatchesService.saveMatchToDB(matchScore);
+                //removing match from ongoing matches collection
+                ongoingMatchesService.removeMatchFromCollection(matchScore.getMatchId());
+
+            } catch (MatchNotCreatedException e) {
+                //rendering error page
+                req.getRequestDispatcher("ErrorPage.jsp").forward(req, resp);
+            }
+
+            //rendering final score page
+            req.getRequestDispatcher("FinalScorePage.jsp").forward(req, resp);
+        }else {
+            //rendering ongoing match page
+            req.getRequestDispatcher("OngoingMatchPage.jsp").forward(req, resp);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         UUID uuid = UUID.fromString(req.getParameter("uuid"));
         String winnerId = req.getParameter("winner");
@@ -69,7 +70,7 @@ public class MatchScoreController extends HttpServlet {
         MatchScore ongoingMatch = ongoingMatchesService.getMatchById(uuid);
 
         //calculate the points
-        ScoreCalculationService.calculateMatch(ongoingMatch, winnerId);
+        scoreCalculationService.calculateMatch(ongoingMatch, winnerId);
 
         //update the match in the collection
         ongoingMatchesService.updateScore(ongoingMatch);

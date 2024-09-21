@@ -35,8 +35,4 @@ public class OngoingMatchesService {
         ongoingMatches.remove(matchId);
     }
 
-    public Map<UUID, MatchScore> getAllOngoingMatches() {
-        return ongoingMatches;
-    }
-
 }
