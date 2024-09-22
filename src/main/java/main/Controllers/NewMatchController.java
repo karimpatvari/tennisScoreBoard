@@ -10,15 +10,26 @@ import main.dao.PlayerDao;
 import main.entities.MatchScore;
 import main.entities.PlayerEntity;
 import main.service.OngoingMatchesService;
+import org.eclipse.tags.shaded.org.apache.bcel.generic.NEW;
 
 import java.io.IOException;
 
 @WebServlet("/new-match")
 public class NewMatchController extends HttpServlet {
 
+    private OngoingMatchesService ongoingMatchesService;
+
+    @Override
+    public void init() throws ServletException {
+        this.ongoingMatchesService = new OngoingMatchesService(new PlayerDao());
+    }
+
+    private static final String NEW_MATCH_PAGE = "NewMatchPage.jsp";
+    private static final String ERROR_PAGE = "ErrorPage.jsp";
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("NewMatchPage.jsp").forward(req, resp);
+        req.getRequestDispatcher(NEW_MATCH_PAGE).forward(req, resp);
     }
 
     @Override
@@ -31,23 +42,18 @@ public class NewMatchController extends HttpServlet {
             req.setAttribute("errorMessage", "Please fill all the required fields");
             req.setAttribute("player1NameValue", player1Name);
             req.setAttribute("player2NameValue", player2Name);
-            req.getRequestDispatcher("NewMatchPage.jsp").forward(req, resp);
+            req.getRequestDispatcher(NEW_MATCH_PAGE).forward(req, resp);
 
         }else {
             try{
-                PlayerDao playerDao = new PlayerDao();
-                PlayerEntity player1 = playerDao.getOrSavePlayer(player1Name);
-                PlayerEntity player2 = playerDao.getOrSavePlayer(player2Name);
+                //find/create players, create match and put to collection
+                MatchScore match = ongoingMatchesService.createMatch(player1Name, player2Name);
 
-                OngoingMatchesService ongoingMatchesService = new OngoingMatchesService();
-                MatchScore match = ongoingMatchesService.createMatch(player1,player2);
-
-                String redirectUrl = "/match-score?uuid=" + match.getMatchId();
-                resp.sendRedirect(redirectUrl);
+                //go to ongoing matchPage
+                resp.sendRedirect("/match-score?uuid=" + match.getMatchId());
 
             } catch (PlayerNotCreatedException e) {
-                req.setAttribute("errorMessage", "Some error occurred, Try again");
-                req.getRequestDispatcher("NewMatchPage.jsp").forward(req, resp);
+                req.getRequestDispatcher(ERROR_PAGE).forward(req, resp);
             }
         }
     }

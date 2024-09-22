@@ -19,15 +19,17 @@ import java.util.UUID;
 public class MatchScoreController extends HttpServlet {
 
     private OngoingMatchesService ongoingMatchesService;
-    private FinishedMatchesPersistenceService finishedMatchesService;
     private MatchScoreCalculationService scoreCalculationService;
 
     @Override
-    public void init() throws ServletException {
-        this.ongoingMatchesService = new OngoingMatchesService();
-        this.finishedMatchesService = new FinishedMatchesPersistenceService();
+    public void init() {
+        this.ongoingMatchesService = new OngoingMatchesService(new FinishedMatchesPersistenceService());
         this.scoreCalculationService = new MatchScoreCalculationService();
     }
+
+    private static final String ERROR_PAGE = "ErrorPage.jsp";
+    private static final String FINAL_SCORE_PAGE = "FinalScorePage.jsp";
+    private static final String ONGOING_MATCH_PAGE = "OngoingMatchPage.jsp";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -40,23 +42,19 @@ public class MatchScoreController extends HttpServlet {
 
         //if winner is assigned then proceed to final score page
         if (matchScore.isWinnerAssigned()) {
-
             try {
-                //saving match record to db
-                finishedMatchesService.saveMatchToDB(matchScore);
-                //removing match from ongoing matches collection
-                ongoingMatchesService.removeMatchFromCollection(matchScore.getMatchId());
-
+                //saving to db and deleting from collection
+                ongoingMatchesService.completeMatch(matchScore);
             } catch (MatchNotCreatedException e) {
                 //rendering error page
-                req.getRequestDispatcher("ErrorPage.jsp").forward(req, resp);
+                req.getRequestDispatcher(ERROR_PAGE).forward(req, resp);
             }
 
             //rendering final score page
-            req.getRequestDispatcher("FinalScorePage.jsp").forward(req, resp);
-        }else {
+            req.getRequestDispatcher(FINAL_SCORE_PAGE).forward(req, resp);
+        } else {
             //rendering ongoing match page
-            req.getRequestDispatcher("OngoingMatchPage.jsp").forward(req, resp);
+            req.getRequestDispatcher(ONGOING_MATCH_PAGE).forward(req, resp);
         }
     }
 
@@ -75,7 +73,7 @@ public class MatchScoreController extends HttpServlet {
         //update the match in the collection
         ongoingMatchesService.updateScore(ongoingMatch);
 
-        resp.sendRedirect("/match-score?uuid=" + uuid.toString());
+        resp.sendRedirect("/match-score?uuid=" + uuid);
 
     }
 }
