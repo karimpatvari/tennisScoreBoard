@@ -13,6 +13,7 @@ import main.entities.MatchEntity;
 import main.service.FinishedMatchesPersistenceService;
 import main.service.MatchScoreCalculationService;
 import main.service.OngoingMatchesService;
+import main.utils.MatchScoreMapper;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class MatchScoreController extends HttpServlet {
 
     private OngoingMatchesService ongoingMatchesService;
     private MatchScoreCalculationService scoreCalculationService;
+    MatchScoreMapper matchMapper = MatchScoreMapper.INSTANCE;
 
     @Override
     public void init() {
@@ -51,32 +53,14 @@ public class MatchScoreController extends HttpServlet {
                 req.getRequestDispatcher(ERROR_PAGE).forward(req, resp);
             }
 
-            finalScoreDto finalScoreDto = new finalScoreDto(
-                    matchScore.getPlayer1().getName(),
-                    matchScore.getPlayer1().getSets(),
-                    matchScore.getPlayer2().getName(),
-                    matchScore.getPlayer2().getSets(),
-                    matchScore.getWinner().getName()
-                    );
+            finalScoreDto finalScoreDto = matchMapper.MatchEntityToFinalScoreDto(matchScore);
             req.setAttribute("finalScoreDto", finalScoreDto);
 
             //rendering final score page
             req.getRequestDispatcher(FINAL_SCORE_PAGE).forward(req, resp);
         } else {
 
-            matchScoreDto matchScoreDto = new matchScoreDto(
-                    matchScore.getMatchId(),
-                    matchScore.getPlayer1().getId(),
-                    matchScore.getPlayer1().getName(),
-                    matchScore.getPlayer1().getSets(),
-                    matchScore.getPlayer1().getGames(),
-                    matchScore.getPlayer1().getPoints(),
-                    matchScore.getPlayer2().getId(),
-                    matchScore.getPlayer2().getName(),
-                    matchScore.getPlayer2().getSets(),
-                    matchScore.getPlayer2().getGames(),
-                    matchScore.getPlayer2().getPoints()
-            );
+            matchScoreDto matchScoreDto = matchMapper.matchEntityToMatchScoreDto(matchScore);
             req.setAttribute("matchScoreDto", matchScoreDto);
 
             //rendering ongoing match page
