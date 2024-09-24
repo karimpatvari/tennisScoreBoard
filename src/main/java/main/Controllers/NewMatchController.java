@@ -7,10 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import main.customExceptions.PlayerNotCreatedException;
 import main.dao.PlayerDao;
-import main.entities.MatchScore;
-import main.entities.PlayerEntity;
+import main.entities.MatchEntity;
 import main.service.OngoingMatchesService;
-import org.eclipse.tags.shaded.org.apache.bcel.generic.NEW;
 
 import java.io.IOException;
 
@@ -47,7 +45,7 @@ public class NewMatchController extends HttpServlet {
         }else {
             try{
                 //find/create players, create match and put to collection
-                MatchScore match = ongoingMatchesService.createMatch(player1Name, player2Name);
+                MatchEntity match = ongoingMatchesService.createMatch(player1Name, player2Name);
 
                 //go to ongoing matchPage
                 resp.sendRedirect("/match-score?uuid=" + match.getMatchId());

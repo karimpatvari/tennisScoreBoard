@@ -1,11 +1,11 @@
 package main.service;
 
-import main.entities.MatchScore;
+import main.entities.MatchEntity;
 import main.entities.PlayerEntity;
 
 public class MatchScoreCalculationService {
 
-    public MatchScore calculateMatch(MatchScore ongoingMatch, String winnerId) {
+    public MatchEntity calculateMatch(MatchEntity ongoingMatch, String winnerId) {
 
         Integer winnerIdInteger = Integer.valueOf(winnerId);
 
@@ -23,7 +23,7 @@ public class MatchScoreCalculationService {
         return ongoingMatch;
     }
 
-    private void handleTieBreak(PlayerEntity winner, MatchScore ongoingMatch) {
+    private void handleTieBreak(PlayerEntity winner, MatchEntity ongoingMatch) {
         winner.addTieBreakPoint();
 
         if (winner.getPoints() == 7){
@@ -32,7 +32,7 @@ public class MatchScoreCalculationService {
         }
     }
 
-    private void handleRegularPlay(PlayerEntity winner, PlayerEntity opponent, MatchScore ongoingMatch) {
+    private void handleRegularPlay(PlayerEntity winner, PlayerEntity opponent, MatchEntity ongoingMatch) {
         
        if (winner.getPoints() < 40){
            winner.addPoint();
@@ -60,7 +60,7 @@ public class MatchScoreCalculationService {
 
     }
 
-    private void checkSetWin(PlayerEntity winner, PlayerEntity opponent, MatchScore ongoingMatch) {
+    private void checkSetWin(PlayerEntity winner, PlayerEntity opponent, MatchEntity ongoingMatch) {
         if (winner.getGames() == 6 && opponent.getGames() < 5) {
             winner.winSet();
             ongoingMatch.resetGames();
@@ -70,7 +70,7 @@ public class MatchScoreCalculationService {
         }
     }
 
-    private void CompleteGame(PlayerEntity winner, MatchScore ongoingMatch) {
+    private void CompleteGame(PlayerEntity winner, MatchEntity ongoingMatch) {
         winner.winGame();
         ongoingMatch.resetPoints();
     }

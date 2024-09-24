@@ -17,13 +17,12 @@ public class FinishedMatchesController extends HttpServlet {
 
     private static final String FINISHED_MATCHES_PAGE = "FinishedMatchesPage.jsp";
 
-    private MatchDao matchDao;
     private FinishedMatchesPersistenceService finishedMatchesService;
+    private final MatchDao matchDao = new MatchDao();
 
     @Override
     public void init() throws ServletException {
-        matchDao = new MatchDao();
-        finishedMatchesService = new FinishedMatchesPersistenceService();
+        this.finishedMatchesService = new FinishedMatchesPersistenceService(matchDao);
     }
 
     @Override
@@ -48,7 +47,7 @@ public class FinishedMatchesController extends HttpServlet {
         }
 
         if (playerName != null && !playerName.isEmpty()) {
-            allMatchEntities = matchDao.getMatchesByPlayerName(playerName);
+            allMatchEntities = finishedMatchesService.getMatchesByPlayerName(playerName);
             totalRecords = allMatchEntities.size();
         } else {
             allMatchEntities = finishedMatchesService.GetMatchesFromDB(page, recordsPerPage);

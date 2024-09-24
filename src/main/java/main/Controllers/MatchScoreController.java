@@ -6,7 +6,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import main.customExceptions.MatchNotCreatedException;
-import main.entities.MatchScore;
+import main.dao.MatchDao;
+import main.entities.MatchEntity;
 import main.service.FinishedMatchesPersistenceService;
 import main.service.MatchScoreCalculationService;
 import main.service.OngoingMatchesService;
@@ -26,7 +27,9 @@ public class MatchScoreController extends HttpServlet {
 
     @Override
     public void init() {
-        this.ongoingMatchesService = new OngoingMatchesService(new FinishedMatchesPersistenceService());
+        this.ongoingMatchesService = new OngoingMatchesService(
+                new FinishedMatchesPersistenceService(
+                        new MatchDao()));
         this.scoreCalculationService = new MatchScoreCalculationService();
     }
 
@@ -34,7 +37,7 @@ public class MatchScoreController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         //get match by id
-        MatchScore matchScore = ongoingMatchesService.getMatchById(UUID.fromString(req.getParameter("uuid")));
+        MatchEntity matchScore = ongoingMatchesService.getMatchById(UUID.fromString(req.getParameter("uuid")));
 
         //sending matchScore to jsp page, because it will not be changed
         req.setAttribute("matchScore", matchScore);
@@ -64,7 +67,7 @@ public class MatchScoreController extends HttpServlet {
         String winnerId = req.getParameter("winner");
 
         //get outDated match
-        MatchScore ongoingMatch = ongoingMatchesService.getMatchById(uuid);
+        MatchEntity ongoingMatch = ongoingMatchesService.getMatchById(uuid);
 
         //calculate the points
         scoreCalculationService.calculateMatch(ongoingMatch, winnerId);
