@@ -7,10 +7,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import main.dao.MatchDao;
 import main.dto.finishedMatchesDto;
+import main.dto.matchDto;
 import main.entities.MatchEntity;
 import main.service.FinishedMatchesPersistenceService;
+import main.utils.MatchMapper;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/matches")
@@ -19,10 +22,12 @@ public class FinishedMatchesController extends HttpServlet {
     private static final String FINISHED_MATCHES_PAGE = "FinishedMatchesPage.jsp";
 
     private FinishedMatchesPersistenceService finishedMatchesService;
-    private final MatchDao matchDao = new MatchDao();
+
+    MatchMapper matchMapperInstance = MatchMapper.INSTANCE;
 
     @Override
     public void init() throws ServletException {
+        MatchDao matchDao = new MatchDao();
         this.finishedMatchesService = new FinishedMatchesPersistenceService(matchDao);
     }
 
@@ -57,7 +62,8 @@ public class FinishedMatchesController extends HttpServlet {
 
         totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
 
-        finishedMatchesDto finishedMatchesDto = new finishedMatchesDto(allMatchEntities, totalPages, page);
+        List<matchDto> matchDtos = matchMapperInstance.matchEntitiesToMatchDtos(allMatchEntities);
+        finishedMatchesDto finishedMatchesDto = new finishedMatchesDto(matchDtos, page, totalPages);
         req.setAttribute("finishedMatchesDto", finishedMatchesDto);
 
         req.getRequestDispatcher(FINISHED_MATCHES_PAGE).forward(req, resp);

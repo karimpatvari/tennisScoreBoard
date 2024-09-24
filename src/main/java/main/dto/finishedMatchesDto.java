@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class finishedMatchesDto {
-    private List<MatchEntity> matches;
+    private List<matchDto> matches;
     private int page;
     private int totalPages;
 }

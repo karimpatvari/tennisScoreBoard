@@ -159,12 +159,12 @@
         </tr>
         </thead>
         <tbody>
-        <c:forEach var="matchEntity" items="${finishedMatchesDto.matches}">
+        <c:forEach var="matchDto" items="${finishedMatchesDto.matches}">
             <tr>
-                <td>${matchEntity.id}</td>
-                <td>${matchEntity.player1.name}</td>
-                <td>${matchEntity.player2.name}</td>
-                <td>${matchEntity.winner.name}</td>
+                <td>${matchDto.id}</td>
+                <td>${matchDto.player1Name}</td>
+                <td>${matchDto.player2Name}</td>
+                <td>${matchDto.winnerName}</td>
             </tr>
         </c:forEach>
         </tbody>
