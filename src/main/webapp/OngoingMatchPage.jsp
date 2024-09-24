@@ -136,23 +136,23 @@
     <th>Points</th>
   </tr>
   <tr>
-    <td>${matchScore.player1.name}</td>
-    <td>${matchScore.player1.sets}</td>
-    <td>${matchScore.player1.games}</td>
-    <td>${matchScore.player1.points}</td>
+    <td>${matchScoreDto.player1Name}</td>
+    <td>${matchScoreDto.player1Sets}</td>
+    <td>${matchScoreDto.player1Games}</td>
+    <td>${matchScoreDto.player1Points}</td>
   </tr>
   <tr>
-    <td>${matchScore.player2.name}</td>
-    <td>${matchScore.player2.sets}</td>
-    <td>${matchScore.player2.games}</td>
-    <td>${matchScore.player2.points}</td>
+    <td>${matchScoreDto.player2Name}</td>
+    <td>${matchScoreDto.player2Sets}</td>
+    <td>${matchScoreDto.player2Games}</td>
+    <td>${matchScoreDto.player2Points}</td>
   </tr>
 </table>
 
 <!-- Form to update the score -->
-<form method="post" action="/match-score?uuid=${matchScore.matchId}">
-  <button type="submit" name="winner" value="${matchScore.player1.id}">Player 1 Scores</button>
-  <button type="submit" name="winner" value="${matchScore.player2.id}">Player 2 Scores</button>
+<form method="post" action="/match-score?uuid=${matchScoreDto.matchId}">
+  <button type="submit" name="winner" value="${matchScoreDto.player1Id}">Player 1 Scores</button>
+  <button type="submit" name="winner" value="${matchScoreDto.player2Id}">Player 2 Scores</button>
 </form>
 
 <footer>

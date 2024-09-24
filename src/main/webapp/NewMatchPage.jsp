@@ -34,7 +34,7 @@
             padding: 60px 0;
             background-color: #3498db;
             color: white;
-            background-image: url('tennis-bg-newmatch.jpg'); /* Optional: Background image */
+            background-image: url('tennis-bg-score.jpg'); /* Optional: Background image */
             background-size: cover;
             background-position: center;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -120,15 +120,15 @@
 
 <form method="post" action="/new-match">
     <div class="error">
-        ${errorMessage}
+        ${newMatchErrorDto.errorMessage}
     </div>
     <div>
         <label for="player1Name">First Player Name:</label>
-        <input type="text" id="player1Name" name="player1Name" value="${player1NameValue}">
+        <input type="text" id="player1Name" name="player1Name" value="${newMatchErrorDto.player1NameValue}">
     </div>
     <div>
         <label for="player2Name">Second Player Name:</label>
-        <input type="text" id="player2Name" name="player2Name" value="${player2NameValue}">
+        <input type="text" id="player2Name" name="player2Name" value="${newMatchErrorDto.player2NameValue}">
     </div>
     <div>
         <button type="submit">Start Match</button>

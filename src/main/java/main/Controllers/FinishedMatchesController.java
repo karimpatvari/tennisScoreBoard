@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import main.dao.MatchDao;
+import main.dto.finishedMatchesDto;
 import main.entities.MatchEntity;
 import main.service.FinishedMatchesPersistenceService;
 
@@ -56,9 +57,8 @@ public class FinishedMatchesController extends HttpServlet {
 
         totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
 
-        req.setAttribute("matchEntities", allMatchEntities);
-        req.setAttribute("page", page);
-        req.setAttribute("totalPages", totalPages);
+        finishedMatchesDto finishedMatchesDto = new finishedMatchesDto(allMatchEntities, totalPages, page);
+        req.setAttribute("finishedMatchesDto", finishedMatchesDto);
 
         req.getRequestDispatcher(FINISHED_MATCHES_PAGE).forward(req, resp);
 

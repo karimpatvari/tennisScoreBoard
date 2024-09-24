@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import main.customExceptions.PlayerNotCreatedException;
 import main.dao.PlayerDao;
+import main.dto.newMatchErrorDto;
 import main.entities.MatchEntity;
 import main.service.OngoingMatchesService;
 
@@ -37,9 +38,9 @@ public class NewMatchController extends HttpServlet {
         String player2Name = req.getParameter("player2Name");
 
         if (player1Name == null || player2Name == null || player1Name.isBlank() || player2Name.isBlank()) {
-            req.setAttribute("errorMessage", "Please fill all the required fields");
-            req.setAttribute("player1NameValue", player1Name);
-            req.setAttribute("player2NameValue", player2Name);
+
+            newMatchErrorDto newMatchErrorDto = new newMatchErrorDto("Please fill all the required fields", player1Name, player2Name);
+            req.setAttribute("newMatchErrorDto", newMatchErrorDto);
             req.getRequestDispatcher(NEW_MATCH_PAGE).forward(req, resp);
 
         }else {

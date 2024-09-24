@@ -148,17 +148,17 @@
     <th>Sets Won</th>
   </tr>
   <tr>
-    <td>${matchScore.player1.name}</td>
-    <td>${matchScore.player1.sets}</td>
+    <td>${finalScoreDto.player1Name}</td>
+    <td>${finalScoreDto.player1Sets}</td>
   </tr>
   <tr>
-    <td>${matchScore.player2.name}</td>
-    <td>${matchScore.player2.sets}</td>
+    <td>${finalScoreDto.player2Name}</td>
+    <td>${finalScoreDto.player2Sets}</td>
   </tr>
 </table>
 
 <!-- Display the winner -->
-<p>Winner is <strong>${matchScore.winner.name}</strong>!</p>
+<p>Winner is <strong>${finalScoreDto.winnerName}</strong>!</p>
 
 <!-- Link back to the homepage -->
 <p><a class="button" href="/">Back to Home</a></p>

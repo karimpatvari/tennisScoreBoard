@@ -159,7 +159,7 @@
         </tr>
         </thead>
         <tbody>
-        <c:forEach var="matchEntity" items="${matchEntities}">
+        <c:forEach var="matchEntity" items="${finishedMatchesDto.matches}">
             <tr>
                 <td>${matchEntity.id}</td>
                 <td>${matchEntity.player1.name}</td>
@@ -171,18 +171,18 @@
     </table>
 
     <div class="pagination">
-        <c:if test="${page > 1}">
+        <c:if test="${finishedMatchesDto.page > 1}">
             <form action="matches" method="get">
-                <input type="hidden" name="page" value="${page - 1}">
+                <input type="hidden" name="page" value="${finishedMatchesDto.page - 1}">
                 <button type="submit">Previous</button>
             </form>
         </c:if>
 
-        <span>Page ${page} of ${totalPages}</span>
+        <span>Page ${finishedMatchesDto.page} of ${finishedMatchesDto.totalPages}</span>
 
-        <c:if test="${page < totalPages}">
+        <c:if test="${finishedMatchesDto.page < finishedMatchesDto.totalPages}">
             <form action="matches" method="get">
-                <input type="hidden" name="page" value="${page + 1}">
+                <input type="hidden" name="page" value="${finishedMatchesDto.page + 1}">
                 <button type="submit">Next</button>
             </form>
         </c:if>

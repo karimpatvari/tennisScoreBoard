@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import main.customExceptions.MatchNotCreatedException;
 import main.dao.MatchDao;
+import main.dto.finalScoreDto;
+import main.dto.matchScoreDto;
 import main.entities.MatchEntity;
 import main.service.FinishedMatchesPersistenceService;
 import main.service.MatchScoreCalculationService;
@@ -39,9 +41,6 @@ public class MatchScoreController extends HttpServlet {
         //get match by id
         MatchEntity matchScore = ongoingMatchesService.getMatchById(UUID.fromString(req.getParameter("uuid")));
 
-        //sending matchScore to jsp page, because it will not be changed
-        req.setAttribute("matchScore", matchScore);
-
         //if winner is assigned then proceed to final score page
         if (matchScore.isWinnerAssigned()) {
             try {
@@ -52,9 +51,34 @@ public class MatchScoreController extends HttpServlet {
                 req.getRequestDispatcher(ERROR_PAGE).forward(req, resp);
             }
 
+            finalScoreDto finalScoreDto = new finalScoreDto(
+                    matchScore.getPlayer1().getName(),
+                    matchScore.getPlayer1().getSets(),
+                    matchScore.getPlayer2().getName(),
+                    matchScore.getPlayer2().getSets(),
+                    matchScore.getWinner().getName()
+                    );
+            req.setAttribute("finalScoreDto", finalScoreDto);
+
             //rendering final score page
             req.getRequestDispatcher(FINAL_SCORE_PAGE).forward(req, resp);
         } else {
+
+            matchScoreDto matchScoreDto = new matchScoreDto(
+                    matchScore.getMatchId(),
+                    matchScore.getPlayer1().getId(),
+                    matchScore.getPlayer1().getName(),
+                    matchScore.getPlayer1().getSets(),
+                    matchScore.getPlayer1().getGames(),
+                    matchScore.getPlayer1().getPoints(),
+                    matchScore.getPlayer2().getId(),
+                    matchScore.getPlayer2().getName(),
+                    matchScore.getPlayer2().getSets(),
+                    matchScore.getPlayer2().getGames(),
+                    matchScore.getPlayer2().getPoints()
+            );
+            req.setAttribute("matchScoreDto", matchScoreDto);
+
             //rendering ongoing match page
             req.getRequestDispatcher(ONGOING_MATCH_PAGE).forward(req, resp);
         }
