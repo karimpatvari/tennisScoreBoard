@@ -1,148 +1,78 @@
 package main.service;
 
 import main.entities.MatchScore;
+import main.entities.PlayerEntity;
 
 public class MatchScoreCalculationService {
 
     public MatchScore calculateMatch(MatchScore ongoingMatch, String winnerId) {
 
-        Integer player1ID = ongoingMatch.getPlayer1().getId();
-        Integer player1Points = ongoingMatch.getPlayer1Points();
-        Integer player1Games = ongoingMatch.getPlayer1Games();
-        Integer player1Sets = ongoingMatch.getPlayer1Sets();
+        Integer winnerIdInteger = Integer.valueOf(winnerId);
 
-        Integer player2ID = ongoingMatch.getPlayer2().getId();
-        Integer player2Points = ongoingMatch.getPlayer2Points();
-        Integer player2Games = ongoingMatch.getPlayer2Games();
-        Integer player2Sets = ongoingMatch.getPlayer2Sets();
+        PlayerEntity winner = ongoingMatch.getPlayer1().getId() == winnerIdInteger ? ongoingMatch.getPlayer1() : ongoingMatch.getPlayer2();
+        PlayerEntity opponent = ongoingMatch.getPlayer1().getId() == winnerIdInteger ? ongoingMatch.getPlayer2() : ongoingMatch.getPlayer1();
 
-        boolean isTieBreak = (player1Games == 6 && player2Games == 6);
-
-        //player 1 wins a point
-        if (player1ID.equals(Integer.valueOf(winnerId))) {
-            if (isTieBreak) {
-                ongoingMatch.setPlayer1Points(player1Points + 1);
-                // Handle tiebreak win logic
-                if (player1Points >= 6 && player1Points >= player2Points + 1) {
-                    player1Sets++;
-                    ongoingMatch.setPlayer1Sets(player1Sets);
-                    resetSet(ongoingMatch);
-                }
-            } else {
-                switch (player1Points) {
-                    case 0:
-                        ongoingMatch.setPlayer1Points(15);
-                        break;
-                    case 15:
-                        ongoingMatch.setPlayer1Points(30);
-                        break;
-                    case 30:
-                        ongoingMatch.setPlayer1Points(40);
-                        break;
-                    case 40:
-                        if (player2Points == 40) { // Deuce scenario
-                            // Handle advantage logic here if necessary
-                            ongoingMatch.setPlayer1Points(50); // Represent advantage
-                        } else if (player2Points == 50) {
-                            ongoingMatch.setPlayer2Points(40); // Reset opponent's advantage
-                        } else {
-                            // Player 1 wins the game
-                            player1Games++;
-                            ongoingMatch.setPlayer1Games(player1Games);
-                            resetGame(ongoingMatch);
-                            if (player1Games == 6 && player2Games < 5) {
-                                player1Sets++;
-                                ongoingMatch.setPlayer1Sets(player1Sets);
-                                resetSet(ongoingMatch);
-                            }
-                        }
-                        break;
-                    case 50: // Advantage case
-                        player1Games++;
-                        ongoingMatch.setPlayer1Games(player1Games);
-                        resetGame(ongoingMatch);
-                        if (player1Games == 6 && player2Games < 5) {
-                            player1Sets++;
-                            ongoingMatch.setPlayer1Sets(player1Sets);
-                            resetSet(ongoingMatch);
-                        }
-                        break;
-                }
-            }
-            if (player1Sets == 2){
-                ongoingMatch.setWinner(ongoingMatch.getPlayer1());
-                ongoingMatch.setWinnerAssigned(true);
-            }
+        if (winner.getGames() == 6 && opponent.getGames() == 6) {
+            handleTieBreak(winner, ongoingMatch);
+        } else {
+            handleRegularPlay(winner, opponent, ongoingMatch);
         }
 
-        //player 2 wins a point
-        if (player2ID.equals(Integer.valueOf(winnerId))) {
-            if (isTieBreak) {
-                ongoingMatch.setPlayer2Points(player2Points + 1);
-                // Handle tiebreak win logic
-                if (player2Points >= 6 && player2Points >= player1Points + 1) {
-                    player2Sets++;
-                    ongoingMatch.setPlayer2Sets(player2Sets);
-                    resetSet(ongoingMatch);
-                }
-            } else {
-                switch (player2Points) {
-                    case 0:
-                        ongoingMatch.setPlayer2Points(15);
-                        break;
-                    case 15:
-                        ongoingMatch.setPlayer2Points(30);
-                        break;
-                    case 30:
-                        ongoingMatch.setPlayer2Points(40);
-                        break;
-                    case 40:
-                        if (player1Points == 40) { // Deuce scenario
-                            ongoingMatch.setPlayer2Points(50); // Represent advantage
-                        } else if (player1Points == 50) {
-                            ongoingMatch.setPlayer1Points(40); // Reset opponent's advantage
-                        } else {
-                            // Player 2 wins the game
-                            player2Games++;
-                            ongoingMatch.setPlayer2Games(player2Games);
-                            resetGame(ongoingMatch);
-                            if (player2Games == 6 && player1Games < 5) {
-                                player2Sets++;
-                                ongoingMatch.setPlayer2Sets(player2Sets);
-                                resetSet(ongoingMatch);
-                            }
-                        }
-                        break;
-                    case 50: // Advantage case
-                        player2Games++;
-                        ongoingMatch.setPlayer2Games(player2Games);
-                        resetGame(ongoingMatch);
-                        if (player2Games == 6 && player1Games < 5) {
-                            player2Sets++;
-                            ongoingMatch.setPlayer2Sets(player2Sets);
-                            resetSet(ongoingMatch);
-                        }
-                        break;
-                }
-            }
-            if (player2Sets == 2){
-                ongoingMatch.setWinner(ongoingMatch.getPlayer2());
-                ongoingMatch.setWinnerAssigned(true);
-            }
-        }
-        
+        ongoingMatch.assignWinner(winner);
+
         return ongoingMatch;
     }
 
-    private void resetGame(MatchScore match) {
-        match.setPlayer1Points(0);
-        match.setPlayer2Points(0);
+    private void handleTieBreak(PlayerEntity winner, MatchScore ongoingMatch) {
+        winner.addTieBreakPoint();
+
+        if (winner.getPoints() == 7){
+            winner.winSet();
+            ongoingMatch.resetGames();
+        }
     }
-    
-    private void resetSet(MatchScore match) {
-        match.setPlayer1Games(0);
-        match.setPlayer2Games(0);
-        resetGame(match);
+
+    private void handleRegularPlay(PlayerEntity winner, PlayerEntity opponent, MatchScore ongoingMatch) {
+        
+       if (winner.getPoints() < 40){
+           winner.addPoint();
+       }else{
+
+           if (opponent.getPoints() == 40){
+
+               if (winner.getPoints() == 40){
+                   winner.addPoint();
+
+               } else if (winner.getPoints() == 50) {
+                   CompleteGame(winner,ongoingMatch);
+                   checkSetWin(winner,opponent,ongoingMatch);
+               }
+
+           } else if (opponent.getPoints() == 50) {
+               opponent.resetAdvantage();
+
+           }else {
+               CompleteGame(winner,ongoingMatch);
+               checkSetWin(winner,opponent,ongoingMatch);
+           }
+       }
+
+
     }
-    
+
+    private void checkSetWin(PlayerEntity winner, PlayerEntity opponent, MatchScore ongoingMatch) {
+        if (winner.getGames() == 6 && opponent.getGames() < 5) {
+            winner.winSet();
+            ongoingMatch.resetGames();
+            if (winner.getSets() == 2){
+                ongoingMatch.assignWinner(winner);
+            }
+        }
+    }
+
+    private void CompleteGame(PlayerEntity winner, MatchScore ongoingMatch) {
+        winner.winGame();
+        ongoingMatch.resetPoints();
+    }
+
 }

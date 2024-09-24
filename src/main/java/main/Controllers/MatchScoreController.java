@@ -11,7 +11,6 @@ import main.service.FinishedMatchesPersistenceService;
 import main.service.MatchScoreCalculationService;
 import main.service.OngoingMatchesService;
 
-
 import java.io.IOException;
 import java.util.UUID;
 

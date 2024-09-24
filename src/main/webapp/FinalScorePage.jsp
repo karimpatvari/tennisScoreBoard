@@ -149,11 +149,11 @@
   </tr>
   <tr>
     <td>${matchScore.player1.name}</td>
-    <td>${matchScore.player1Sets}</td>
+    <td>${matchScore.player1.sets}</td>
   </tr>
   <tr>
     <td>${matchScore.player2.name}</td>
-    <td>${matchScore.player2Sets}</td>
+    <td>${matchScore.player2.sets}</td>
   </tr>
 </table>
 

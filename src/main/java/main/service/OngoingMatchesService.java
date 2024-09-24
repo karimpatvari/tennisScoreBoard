@@ -30,6 +30,7 @@ public class OngoingMatchesService {
         this.playerDao = playerDao;
     }
 
+
     public MatchScore createMatch(String player1Name, String player2Name) throws PlayerNotCreatedException {
 
         PlayerEntity player1 = playerDao.getOrSavePlayer(player1Name);
@@ -42,11 +43,7 @@ public class OngoingMatchesService {
     }
 
     public void updateScore(MatchScore ongoingMatch) {
-        MatchScore match = ongoingMatches.get(ongoingMatch.getMatchId());
-        if (match != null) {
-            match = ongoingMatch;
-            ongoingMatches.replace(match.getMatchId(), ongoingMatch);
-        }
+        ongoingMatches.put(ongoingMatch.getMatchId(), ongoingMatch);
     }
 
     public MatchScore getMatchById(UUID matchId) {

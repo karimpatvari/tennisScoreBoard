@@ -137,15 +137,15 @@
   </tr>
   <tr>
     <td>${matchScore.player1.name}</td>
-    <td>${matchScore.player1Sets}</td>
-    <td>${matchScore.player1Games}</td>
-    <td>${matchScore.player1Points}</td>
+    <td>${matchScore.player1.sets}</td>
+    <td>${matchScore.player1.games}</td>
+    <td>${matchScore.player1.points}</td>
   </tr>
   <tr>
     <td>${matchScore.player2.name}</td>
-    <td>${matchScore.player2Sets}</td>
-    <td>${matchScore.player2Games}</td>
-    <td>${matchScore.player2Points}</td>
+    <td>${matchScore.player2.sets}</td>
+    <td>${matchScore.player2.games}</td>
+    <td>${matchScore.player2.points}</td>
   </tr>
 </table>
 
