@@ -8,6 +8,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class MatchScore {
+
     private UUID matchId;
     private PlayerEntity player1;
     private PlayerEntity player2;

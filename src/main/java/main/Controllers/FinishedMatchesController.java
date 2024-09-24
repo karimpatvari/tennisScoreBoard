@@ -14,11 +14,20 @@ import java.util.List;
 
 @WebServlet("/matches")
 public class FinishedMatchesController extends HttpServlet {
+
+    private static final String FINISHED_MATCHES_PAGE = "FinishedMatchesPage.jsp";
+
+    private MatchDao matchDao;
+    private FinishedMatchesPersistenceService finishedMatchesService;
+
+    @Override
+    public void init() throws ServletException {
+        matchDao = new MatchDao();
+        finishedMatchesService = new FinishedMatchesPersistenceService();
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        MatchDao matchDao = new MatchDao();
-        FinishedMatchesPersistenceService finishedMatchesService = new FinishedMatchesPersistenceService();
 
         List<MatchEntity> allMatchEntities;
         String playerName = req.getParameter("filter_by_player_name");
@@ -52,7 +61,7 @@ public class FinishedMatchesController extends HttpServlet {
         req.setAttribute("page", page);
         req.setAttribute("totalPages", totalPages);
 
-        req.getRequestDispatcher("FinishedMatchesPage.jsp").forward(req, resp);
+        req.getRequestDispatcher(FINISHED_MATCHES_PAGE).forward(req, resp);
 
     }
 }

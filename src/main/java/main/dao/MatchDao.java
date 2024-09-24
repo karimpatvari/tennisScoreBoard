@@ -1,6 +1,7 @@
 package main.dao;
 
 import main.customExceptions.MatchNotCreatedException;
+import main.customExceptions.PlayerNotFoundException;
 import main.entities.MatchEntity;
 import main.utils.HibernateUtil;
 import org.hibernate.Session;
@@ -79,7 +80,7 @@ public class MatchDao {
                     .setParameter("playerName", playerName)
                     .list();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException();
         } finally {
             session.close();
         }

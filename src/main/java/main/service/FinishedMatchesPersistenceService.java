@@ -41,4 +41,6 @@ public class FinishedMatchesPersistenceService {
         MatchDao matchDao = new MatchDao();
         return matchDao.getTotalMatchCount();  // Retrieve the total count from MatchDao
     }
+
+
 }

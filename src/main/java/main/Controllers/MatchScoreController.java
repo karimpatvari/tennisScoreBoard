@@ -17,6 +17,10 @@ import java.util.UUID;
 @WebServlet("/match-score")
 public class MatchScoreController extends HttpServlet {
 
+    private static final String ERROR_PAGE = "ErrorPage.jsp";
+    private static final String FINAL_SCORE_PAGE = "FinalScorePage.jsp";
+    private static final String ONGOING_MATCH_PAGE = "OngoingMatchPage.jsp";
+
     private OngoingMatchesService ongoingMatchesService;
     private MatchScoreCalculationService scoreCalculationService;
 
@@ -25,10 +29,6 @@ public class MatchScoreController extends HttpServlet {
         this.ongoingMatchesService = new OngoingMatchesService(new FinishedMatchesPersistenceService());
         this.scoreCalculationService = new MatchScoreCalculationService();
     }
-
-    private static final String ERROR_PAGE = "ErrorPage.jsp";
-    private static final String FINAL_SCORE_PAGE = "FinalScorePage.jsp";
-    private static final String ONGOING_MATCH_PAGE = "OngoingMatchPage.jsp";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -70,7 +70,7 @@ public class MatchScoreController extends HttpServlet {
         scoreCalculationService.calculateMatch(ongoingMatch, winnerId);
 
         //update the match in the collection
-        ongoingMatchesService.updateScore(ongoingMatch);
+        ongoingMatchesService.update(ongoingMatch);
 
         resp.sendRedirect("/match-score?uuid=" + uuid);
 

@@ -15,21 +15,18 @@ public class OngoingMatchesService {
     private FinishedMatchesPersistenceService finishedMatchesService;
     private PlayerDao playerDao;
 
-    //collection of ongoing matches
-    private static Map<UUID, MatchScore> ongoingMatches = new HashMap<>();
-
     //constructors
     public OngoingMatchesService() {
     }
-
     public OngoingMatchesService(FinishedMatchesPersistenceService finishedMatchesService) {
         this.finishedMatchesService = finishedMatchesService;
     }
-
     public OngoingMatchesService(PlayerDao playerDao) {
         this.playerDao = playerDao;
     }
 
+    //collection of ongoing matches
+    private static Map<UUID, MatchScore> ongoingMatches = new HashMap<>();
 
     public MatchScore createMatch(String player1Name, String player2Name) throws PlayerNotCreatedException {
 
@@ -42,7 +39,7 @@ public class OngoingMatchesService {
         return newOngoingMatch;
     }
 
-    public void updateScore(MatchScore ongoingMatch) {
+    public void update(MatchScore ongoingMatch) {
         ongoingMatches.put(ongoingMatch.getMatchId(), ongoingMatch);
     }
 
