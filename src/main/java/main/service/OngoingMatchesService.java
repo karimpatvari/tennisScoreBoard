@@ -1,6 +1,5 @@
 package main.service;
 
-import main.customExceptions.MatchNotCreatedException;
 import main.customExceptions.PlayerNotCreatedException;
 import main.dao.PlayerDao;
 import main.entities.MatchEntity;
@@ -12,18 +11,12 @@ import java.util.UUID;
 
 public class OngoingMatchesService {
 
-    private FinishedMatchesPersistenceService finishedMatchesService;
     private PlayerDao playerDao;
 
-    //constructors
-    public OngoingMatchesService(FinishedMatchesPersistenceService finishedMatchesService) {
-        this.finishedMatchesService = finishedMatchesService;
-    }
     public OngoingMatchesService(PlayerDao playerDao) {
         this.playerDao = playerDao;
     }
 
-    //collection of ongoing matches
     private static final Map<UUID, MatchEntity> ongoingMatches = new HashMap<>();
 
     public MatchEntity createMatch(String player1Name, String player2Name) throws PlayerNotCreatedException {
@@ -48,13 +41,5 @@ public class OngoingMatchesService {
     public void removeMatchFromCollection(UUID matchId) {
         ongoingMatches.remove(matchId);
     }
-
-    public void completeMatch(MatchEntity matchScore) throws MatchNotCreatedException {
-        //saving match record to db
-        finishedMatchesService.saveMatchToDB(matchScore);
-        //removing match from ongoing matches collection
-        removeMatchFromCollection(matchScore.getMatchId());
-    }
-
 
 }

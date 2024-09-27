@@ -10,6 +10,9 @@ import org.hibernate.Transaction;
 
 public class PlayerDao {
 
+    public PlayerDao() {
+    }
+
     private static SessionFactory factory = HibernateUtil.getSessionFactory();
 
     public PlayerEntity savePlayer(PlayerEntity playerEntity) throws PlayerNotCreatedException {
@@ -62,32 +65,6 @@ public class PlayerDao {
         }
 
         return player;
-    }
-
-    public PlayerEntity getPlayerById(int id) throws PlayerNotFoundException {
-
-        Transaction tx = null;
-        PlayerEntity playerEntity;
-
-        try (Session session = factory.getCurrentSession()) {
-
-            tx = session.beginTransaction();
-
-            playerEntity = session.get(PlayerEntity.class, id);
-            tx.commit();
-
-        } catch (Exception e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            throw e;
-        }
-
-        if (playerEntity == null) {
-            throw new PlayerNotFoundException();
-        }
-
-        return playerEntity;
     }
 
     public PlayerEntity getOrSavePlayer(String playerName) throws PlayerNotCreatedException {

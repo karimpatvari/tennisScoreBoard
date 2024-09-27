@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import main.customExceptions.MatchNotCreatedException;
 import main.dao.MatchDao;
+import main.dao.PlayerDao;
 import main.dto.finalScoreDto;
 import main.dto.matchScoreDto;
 import main.entities.MatchEntity;
@@ -21,21 +22,22 @@ import java.util.UUID;
 @WebServlet("/match-score")
 public class MatchScoreController extends HttpServlet {
 
-    private static final String ERROR_PAGE = "ErrorPage.jsp";
-    private static final String FINAL_SCORE_PAGE = "FinalScorePage.jsp";
-    private static final String ONGOING_MATCH_PAGE = "OngoingMatchPage.jsp";
+    MatchScoreMapper matchMapper = MatchScoreMapper.INSTANCE;
 
     private OngoingMatchesService ongoingMatchesService;
     private MatchScoreCalculationService scoreCalculationService;
-    MatchScoreMapper matchMapper = MatchScoreMapper.INSTANCE;
+    private FinishedMatchesPersistenceService finishedMatchesService;
 
     @Override
     public void init() {
-        this.ongoingMatchesService = new OngoingMatchesService(
-                new FinishedMatchesPersistenceService(
-                        new MatchDao()));
+        this.finishedMatchesService = new FinishedMatchesPersistenceService(new MatchDao());
+        this.ongoingMatchesService = new OngoingMatchesService(new PlayerDao());
         this.scoreCalculationService = new MatchScoreCalculationService();
     }
+
+    private static final String ERROR_PAGE = "ErrorPage.jsp";
+    private static final String FINAL_SCORE_PAGE = "FinalScorePage.jsp";
+    private static final String ONGOING_MATCH_PAGE = "OngoingMatchPage.jsp";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -46,8 +48,10 @@ public class MatchScoreController extends HttpServlet {
         //if winner is assigned then proceed to final score page
         if (matchScore.isWinnerAssigned()) {
             try {
-                //saving to db and deleting from collection
-                ongoingMatchesService.completeMatch(matchScore);
+                //saving to db
+                finishedMatchesService.saveMatchToDB(matchScore);
+                // and deleting from collection
+                ongoingMatchesService.removeMatchFromCollection(matchScore.getMatchId());
             } catch (MatchNotCreatedException e) {
                 //rendering error page
                 req.getRequestDispatcher(ERROR_PAGE).forward(req, resp);

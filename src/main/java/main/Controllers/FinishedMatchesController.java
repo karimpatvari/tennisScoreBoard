@@ -22,13 +22,11 @@ public class FinishedMatchesController extends HttpServlet {
     private static final String FINISHED_MATCHES_PAGE = "FinishedMatchesPage.jsp";
 
     private FinishedMatchesPersistenceService finishedMatchesService;
-
     MatchMapper matchMapperInstance = MatchMapper.INSTANCE;
 
     @Override
     public void init() throws ServletException {
-        MatchDao matchDao = new MatchDao();
-        this.finishedMatchesService = new FinishedMatchesPersistenceService(matchDao);
+        this.finishedMatchesService = new FinishedMatchesPersistenceService(new MatchDao());
     }
 
     @Override

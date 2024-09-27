@@ -5,7 +5,7 @@ import main.entities.PlayerEntity;
 
 public class MatchScoreCalculationService {
 
-    public MatchEntity calculateMatch(MatchEntity ongoingMatch, String winnerId) {
+    public void calculateMatch(MatchEntity ongoingMatch, String winnerId) {
 
         Integer winnerIdInteger = Integer.valueOf(winnerId);
 
@@ -20,7 +20,6 @@ public class MatchScoreCalculationService {
 
         ongoingMatch.assignWinner(winner);
 
-        return ongoingMatch;
     }
 
     private void handleTieBreak(PlayerEntity winner, MatchEntity ongoingMatch) {

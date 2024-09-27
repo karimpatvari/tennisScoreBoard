@@ -12,6 +12,9 @@ import java.util.List;
 
 public class MatchDao {
 
+    public MatchDao() {
+    }
+
     private static SessionFactory factory = HibernateUtil.getSessionFactory();
 
     public MatchEntity createMatch(MatchEntity matchEntity) throws MatchNotCreatedException {
